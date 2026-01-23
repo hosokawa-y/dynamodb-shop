@@ -2,6 +2,33 @@
 
 このファイルはClaude Codeがプロジェクトを理解するためのガイドです。
 
+## 開発プラン
+
+詳細な開発プランは以下のファイルを参照：
+- `~/.claude/plans/quizzical-moseying-clover.md`
+
+## 担当範囲
+
+### ユーザー担当（DynamoDB学習のため）
+
+| カテゴリ | ファイル |
+|---------|---------|
+| ドメインモデル | `backend/internal/domain/*.go` |
+| DynamoDBクライアント | `backend/internal/repository/dynamodb.go` |
+| リポジトリ | `backend/internal/repository/*_repo.go` |
+| サービス | `backend/internal/service/*.go` |
+
+### Claude Code担当
+
+| カテゴリ | ファイル |
+|---------|---------|
+| ミドルウェア | `backend/internal/middleware/*.go` |
+| HTTPハンドラー | `backend/internal/handler/*.go` |
+| ルーター設定 | `backend/internal/handler/router.go` |
+| インフラスクリプト | `infrastructure/scripts/*.sh` |
+| main.go接続 | `backend/cmd/api/main.go`（依存関係接続） |
+| フロントエンド | `frontend/` |
+
 ## プロジェクト概要
 
 DynamoDBの主要機能を学習するためのEコマースアプリケーション。
