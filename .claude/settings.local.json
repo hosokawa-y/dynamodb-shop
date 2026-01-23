@@ -3,7 +3,14 @@
     "allow": [
       "Bash(chmod:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(npm install axios)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
