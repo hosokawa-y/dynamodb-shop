@@ -1,0 +1,56 @@
+# Security - Credentials & Secrets (NEVER commit these)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+credentials.json
+service-account*.json
+*-credentials.json
+secrets.json
+secrets.yaml
+secrets.yml
+.secrets/
+.credentials/
+aws-credentials
+.aws/credentials
+*.secret
+
+# Backend
+backend/.env
+backend/bin/
+backend/tmp/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# Lambda
+lambda/*/bootstrap
+lambda/*/*.zip
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Test
+coverage/
+*.out
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate*
+infrastructure/terraform/.terraform.lock.hcl

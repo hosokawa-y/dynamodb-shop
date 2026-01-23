@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Pre-commit hook to prevent committing sensitive information
+# Install: git config core.hooksPath .githooks
+#
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo "Running security checks..."
+
+# Patterns to detect sensitive information
+PATTERNS=(
+    'AWS_ACCESS_KEY_ID\s*=\s*[A-Z0-9]{20}'
+    'AWS_SECRET_ACCESS_KEY\s*=\s*[A-Za-z0-9/+=]{40}'
+    'AKIA[0-9A-Z]{16}'                          # AWS Access Key ID
+    'api[_-]?key\s*[=:]\s*["\x27][^\s"]{16,}'   # Generic API key
+    'password\s*[=:]\s*["\x27][^\s"]{4,}'       # Password assignment
+    'secret\s*[=:]\s*["\x27][^\s"]{8,}'         # Secret assignment
+    'private[_-]?key'                            # Private key mention
+    '-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----'  # Private key content
+    'JWT_SECRET\s*=\s*[^\s]{8,}'                # JWT Secret
+    'DYNAMODB_.*=\s*[^\s]+'                     # DynamoDB credentials (in staged content)
+)
+
+# Files to check (staged files only)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Check for sensitive file types
+SENSITIVE_FILES=$(echo "$STAGED_FILES" | grep -E '\.(env|pem|key|p12|pfx|secret)$' || true)
+if [ -n "$SENSITIVE_FILES" ]; then
+    echo -e "${RED}ERROR: Attempting to commit potentially sensitive files:${NC}"
+    echo "$SENSITIVE_FILES"
+    echo ""
+    echo "If you're sure these files don't contain secrets, use: git commit --no-verify"
+    exit 1
+fi
+
+# Check for credentials.json, secrets.json, etc.
+CREDENTIALS_FILES=$(echo "$STAGED_FILES" | grep -E '(credentials|secrets|service-account).*\.(json|yaml|yml)$' || true)
+if [ -n "$CREDENTIALS_FILES" ]; then
+    echo -e "${RED}ERROR: Attempting to commit credential files:${NC}"
+    echo "$CREDENTIALS_FILES"
+    exit 1
+fi
+
+# Check staged content for sensitive patterns
+FOUND_ISSUES=0
+for file in $STAGED_FILES; do
+    if [ -f "$file" ]; then
+        for pattern in "${PATTERNS[@]}"; do
+            MATCHES=$(git diff --cached "$file" | grep -iE "$pattern" || true)
+            if [ -n "$MATCHES" ]; then
+                echo -e "${RED}ERROR: Potential secret detected in $file:${NC}"
+                echo "$MATCHES" | head -3
+                FOUND_ISSUES=1
+            fi
+        done
+    fi
+done
+
+if [ $FOUND_ISSUES -eq 1 ]; then
+    echo ""
+    echo "Please remove sensitive information before committing."
+    echo "If this is a false positive, use: git commit --no-verify"
+    exit 1
+fi
+
+echo "Security checks passed."
+exit 0
