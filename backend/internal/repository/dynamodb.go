@@ -13,27 +13,8 @@ type DynamoDBClient struct {
 	TableName string
 }
 
-func NewDynamoDBClient(ctx context.Context, tableName, endpoint, region string) (*DynamoDBClient, error) {
-	var cfg aws.Config
-	var err error
-
-	if endpoint != "" {
-		// ローカル開発用（DynamoDB Local）
-		cfg, err = config.LoadDefaultConfig(ctx,
-			config.WithRegion(region),
-			config.WithEndpointResolverWithOptions(
-				aws.EndpointResolverWithOptionsFunc(
-					func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-						return aws.Endpoint{URL: endpoint}, nil
-					},
-				),
-			),
-		)
-	} else {
-		// AWS実環境
-		cfg, err = config.LoadDefaultConfig(ctx, config.WithRegion(region))
-	}
-
+func NewDynamoDBClient(ctx context.Context, tableName string) (*DynamoDBClient, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -44,4 +25,9 @@ func NewDynamoDBClient(ctx context.Context, tableName, endpoint, region string) 
 		Client:    client,
 		TableName: tableName,
 	}, nil
+}
+
+// テーブル名を返すヘルパー
+func (d *DynamoDBClient) Table() *string {
+	return aws.String(d.TableName)
 }

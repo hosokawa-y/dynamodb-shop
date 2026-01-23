@@ -6,6 +6,7 @@
 
 詳細な開発プランは以下のファイルを参照：
 - `~/.claude/plans/quizzical-moseying-clover.md`
+- `/Users/hosokawa/Documents/Obsidian Vault/DynamoDB学習ノート/DynamoDB Shop - 実装計画.md`
 
 ## 担当範囲
 
