@@ -17,7 +17,8 @@
       "Bash(go run:*)",
       "Bash(curl:*)",
       "Bash(npm run dev:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(git config:*)"
     ]
   }
 }

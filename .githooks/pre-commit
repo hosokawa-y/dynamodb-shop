@@ -7,6 +7,32 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+echo "Running pre-commit checks..."
+
+# ============================================
+# Go Format Check
+# ============================================
+echo "Checking Go formatting..."
+
+# Get staged Go files
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' || true)
+
+if [ -n "$STAGED_GO_FILES" ]; then
+    # Run go fmt on staged files
+    for file in $STAGED_GO_FILES; do
+        if [ -f "$file" ]; then
+            gofmt -w "$file"
+            git add "$file"
+        fi
+    done
+    echo "Go files formatted."
+else
+    echo "No Go files to format."
+fi
+
+# ============================================
+# Security Checks
+# ============================================
 echo "Running security checks..."
 
 # Patterns to detect sensitive information
