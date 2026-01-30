@@ -5,12 +5,12 @@ import (
 )
 
 type Config struct {
-	AWSRegion       string
-	DynamoDBTable   string
+	AWSRegion        string
+	DynamoDBTable    string
 	DynamoDBEndpoint string // ローカル開発用
-	JWTSecret       string
-	JWTExpiry       string
-	ServerPort      string
+	JWTSecret        string
+	JWTExpiry        string
+	ServerPort       string
 }
 
 func Load() *Config {

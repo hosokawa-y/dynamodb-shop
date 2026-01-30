@@ -34,10 +34,10 @@ var ErrProductNotFound = errors.New("product not found")
 // productRecord はDynamoDBに保存する商品データの構造体
 // dynamodbavタグでDynamoDBの属性名を指定
 type productRecord struct {
-	PK          string `dynamodbav:"PK"`        // パーティションキー: PRODUCT#<id>
-	SK          string `dynamodbav:"SK"`        // ソートキー: METADATA
-	GSI1PK      string `dynamodbav:"GSI1PK"`    // GSI1パーティションキー: PRODUCT
-	GSI1SK      string `dynamodbav:"GSI1SK"`    // GSI1ソートキー: CATEGORY#<category>#<id>
+	PK          string `dynamodbav:"PK"`     // パーティションキー: PRODUCT#<id>
+	SK          string `dynamodbav:"SK"`     // ソートキー: METADATA
+	GSI1PK      string `dynamodbav:"GSI1PK"` // GSI1パーティションキー: PRODUCT
+	GSI1SK      string `dynamodbav:"GSI1SK"` // GSI1ソートキー: CATEGORY#<category>#<id>
 	ID          string `dynamodbav:"id"`
 	Name        string `dynamodbav:"name"`
 	Description string `dynamodbav:"description"`
@@ -75,8 +75,8 @@ func (r *ProductRepository) Create(ctx context.Context, product *domain.Product)
 	record := productRecord{
 		PK:          "PRODUCT#" + product.ID,
 		SK:          "METADATA",
-		GSI1PK:      "PRODUCT",                                          // 全商品で共通
-		GSI1SK:      "CATEGORY#" + product.Category + "#" + product.ID,  // カテゴリ検索用
+		GSI1PK:      "PRODUCT",                                         // 全商品で共通
+		GSI1SK:      "CATEGORY#" + product.Category + "#" + product.ID, // カテゴリ検索用
 		ID:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
@@ -137,14 +137,16 @@ func (r *ProductRepository) GetByID(ctx context.Context, id string) (*domain.Pro
 // 【使用API】Query - GSI1を使用した一覧取得
 //
 // 【GSI1の構造】
-//   GSI1PK: "PRODUCT"（全商品で共通 = 同じパーティションに配置）
-//   GSI1SK: "CATEGORY#electronics#001" のような形式
+//
+//	GSI1PK: "PRODUCT"（全商品で共通 = 同じパーティションに配置）
+//	GSI1SK: "CATEGORY#electronics#001" のような形式
 //
 // 【begins_with の動作】
-//   begins_with(GSI1SK, "CATEGORY#electronics") は以下にマッチ:
-//     ✅ CATEGORY#electronics#001
-//     ✅ CATEGORY#electronics#002
-//     ❌ CATEGORY#clothing#003
+//
+//	begins_with(GSI1SK, "CATEGORY#electronics") は以下にマッチ:
+//	  ✅ CATEGORY#electronics#001
+//	  ✅ CATEGORY#electronics#002
+//	  ❌ CATEGORY#clothing#003
 func (r *ProductRepository) List(ctx context.Context, category string) ([]*domain.Product, error) {
 	var input *dynamodb.QueryInput
 
@@ -156,8 +158,8 @@ func (r *ProductRepository) List(ctx context.Context, category string) ([]*domai
 		// begins_with は前方一致検索（プレフィックス検索）
 		input = &dynamodb.QueryInput{
 			TableName:              r.db.Table(),
-			IndexName:              aws.String("GSI1"),                                         // GSI1インデックスを使用
-			KeyConditionExpression: aws.String("GSI1PK = :pk AND begins_with(GSI1SK, :sk)"),   // キー条件式
+			IndexName:              aws.String("GSI1"),                                      // GSI1インデックスを使用
+			KeyConditionExpression: aws.String("GSI1PK = :pk AND begins_with(GSI1SK, :sk)"), // キー条件式
 			ExpressionAttributeValues: map[string]types.AttributeValue{
 				":pk": &types.AttributeValueMemberS{Value: "PRODUCT"},              // 全商品
 				":sk": &types.AttributeValueMemberS{Value: "CATEGORY#" + category}, // カテゴリプレフィックス
@@ -203,9 +205,10 @@ func (r *ProductRepository) List(ctx context.Context, category string) ([]*domai
 // 【使用API】PutItem + ConditionExpression
 //
 // 【ConditionExpression の役割】
-//   attribute_exists(PK) = PKが存在する場合のみ実行
-//   → 存在しないアイテムへの誤った更新を防ぐ
-//   → 条件を満たさない場合は ConditionalCheckFailedException が発生
+//
+//	attribute_exists(PK) = PKが存在する場合のみ実行
+//	→ 存在しないアイテムへの誤った更新を防ぐ
+//	→ 条件を満たさない場合は ConditionalCheckFailedException が発生
 func (r *ProductRepository) Update(ctx context.Context, product *domain.Product) error {
 	now := time.Now()
 
@@ -245,8 +248,9 @@ func (r *ProductRepository) Update(ctx context.Context, product *domain.Product)
 // 【使用API】DeleteItem + ConditionExpression
 //
 // 【注意】DynamoDBのDeleteItemは存在しないキーを指定してもエラーにならない
-//   → ConditionExpression で存在チェックを追加することで、
-//     存在しない場合にエラーを返すようにしている
+//
+//	→ ConditionExpression で存在チェックを追加することで、
+//	  存在しない場合にエラーを返すようにしている
 func (r *ProductRepository) Delete(ctx context.Context, id string) error {
 	// DeleteItem: PK+SKを指定して削除
 	_, err := r.db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
