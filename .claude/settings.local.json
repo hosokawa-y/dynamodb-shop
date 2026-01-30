@@ -12,7 +12,12 @@
       "Bash(git add:*)",
       "mcp__ide__getDiagnostics",
       "Bash(go build:*)",
-      "Bash(./infrastructure/scripts/create-table.sh:*)"
+      "Bash(./infrastructure/scripts/create-table.sh:*)",
+      "Bash(cat:*)",
+      "Bash(go run:*)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)"
     ]
   }
 }
