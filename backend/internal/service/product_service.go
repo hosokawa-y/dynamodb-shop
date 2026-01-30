@@ -17,11 +17,11 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 	}
 }
 
-func (s *ProductService) List(ctx context.Context, category string)([]*domain.Product, error) {
+func (s *ProductService) List(ctx context.Context, category string) ([]*domain.Product, error) {
 	return s.repo.List(ctx, category)
 }
 
-func (s *ProductService) GetByID(ctx context.Context, id string)(*domain.Product, error) {
+func (s *ProductService) GetByID(ctx context.Context, id string) (*domain.Product, error) {
 	return s.repo.GetByID(ctx, id)
 }
 

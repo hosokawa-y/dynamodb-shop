@@ -5,13 +5,13 @@ import (
 	"errors"
 	"time"
 
-  	"github.com/aws/aws-sdk-go-v2/aws"
-  	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-  	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-  	"github.com/google/uuid"
+	"github.com/google/uuid"
 
-  	"github.com/hosokawa-y/dynamodb-shop/backend/internal/domain"
+	"github.com/hosokawa-y/dynamodb-shop/backend/internal/domain"
 	"github.com/hosokawa-y/dynamodb-shop/backend/pkg/timeutil"
 )
 
@@ -20,16 +20,16 @@ var ErrEmailAlreadyExists = errors.New("email already exists")
 
 // DynamoDB用の内部構造体
 type userRecord struct {
-	PK string `dynamodbav:"PK"`
-	SK string `dynamodbav:"SK"`
-	GSI1PK string `dynamodbav:"GSI1PK"`
-	GSI1SK string `dynamodbav:"GSI1SK"`
-	ID string `dynamodbav:"id"`
-	Email string `dynamodbav:"email"`
-	Name string `dynamodbav:"name"`
+	PK           string `dynamodbav:"PK"`
+	SK           string `dynamodbav:"SK"`
+	GSI1PK       string `dynamodbav:"GSI1PK"`
+	GSI1SK       string `dynamodbav:"GSI1SK"`
+	ID           string `dynamodbav:"id"`
+	Email        string `dynamodbav:"email"`
+	Name         string `dynamodbav:"name"`
 	PasswordHash string `dynamodbav:"passwordHash"`
-	CreatedAt string `dynamodbav:"createdAt"`
-	UpdatedAt string `dynamodbav:"updatedAt"`
+	CreatedAt    string `dynamodbav:"createdAt"`
+	UpdatedAt    string `dynamodbav:"updatedAt"`
 }
 
 type UserRepository struct {
@@ -42,23 +42,23 @@ func NewUserRepository(db *DynamoDBClient) *UserRepository {
 	}
 }
 
-func (r *UserRepository) Create(ctx context.Context, user *domain.User)error {
+func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	now := time.Now()
 	user.ID = uuid.New().String()
 	user.CreatedAt = now
 	user.UpdatedAt = now
 
 	record := userRecord{
-		PK: "USER#" + user.ID, // USER#の#はDynamoDBのSingle Table Designの区切り文字
-		SK: "PROFILE",
-		GSI1PK: "USER",
-		GSI1SK: "EMAIL#" + user.Email, // メールアドレスでの検索用
-		ID: user.ID,
-		Email: user.Email,
-		Name: user.Name,
+		PK:           "USER#" + user.ID, // USER#の#はDynamoDBのSingle Table Designの区切り文字
+		SK:           "PROFILE",
+		GSI1PK:       "USER",
+		GSI1SK:       "EMAIL#" + user.Email, // メールアドレスでの検索用
+		ID:           user.ID,
+		Email:        user.Email,
+		Name:         user.Name,
 		PasswordHash: user.PasswordHash,
-		CreatedAt: user.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: user.UpdatedAt.Format(time.RFC3339),
+		CreatedAt:    user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:    user.UpdatedAt.Format(time.RFC3339),
 	}
 
 	item, err := attributevalue.MarshalMap(record)
@@ -72,8 +72,8 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User)error {
 	// - これにより重複登録を防止
 	// ConditionExpressionがないと、PutItemは同じPKのアイテムを無条件で上書きしてしまう
 	_, err = r.db.Client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: r.db.Table(),
-		Item:      item,
+		TableName:           r.db.Table(),
+		Item:                item,
 		ConditionExpression: aws.String("attribute_not_exists(PK)"),
 	})
 
@@ -99,7 +99,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 	if result.Item == nil {
 		return nil, ErrUserNotFound
 	}
-	
+
 	var record userRecord
 	if err = attributevalue.UnmarshalMap(result.Item, &record); err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 	}, nil
 }
 
-func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error){
+func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	// Query: 条件に一致する複数アイテムを取得
 	// - GetItemとの違い: PKだけでなくSKにも条件（範囲・前方一致など）を指定可能
 	// - GSI（グローバルセカンダリインデックス）を使用してemail検索を実現
@@ -123,8 +123,8 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	//   GSI1を使うことでemailからユーザーを検索可能にしている
 	// - KeyConditionExpressionでSKに使える演算子: =, begins_with, BETWEEN, <, <=, >, >=
 	result, err := r.db.Client.Query(ctx, &dynamodb.QueryInput{
-		TableName: r.db.Table(),
-		IndexName: aws.String("GSI1"),
+		TableName:              r.db.Table(),
+		IndexName:              aws.String("GSI1"),
 		KeyConditionExpression: aws.String("GSI1PK = :pk AND GSI1SK = :sk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{Value: "USER"},

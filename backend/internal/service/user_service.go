@@ -37,7 +37,7 @@ func (s *UserService) Register(ctx context.Context, req *domain.RegisterRequest)
 	if err := s.repo.Create(ctx, user); err != nil {
 		return nil, err
 	}
-	
+
 	return user, nil
 }
 
