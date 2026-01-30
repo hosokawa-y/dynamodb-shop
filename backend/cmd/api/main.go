@@ -13,8 +13,7 @@ import (
 	"github.com/hosokawa-y/dynamodb-shop/backend/internal/handler"
 	"github.com/hosokawa-y/dynamodb-shop/backend/internal/middleware"
 	"github.com/hosokawa-y/dynamodb-shop/backend/internal/repository"
-	// TODO: Service パッケージを作成後にインポートを追加
-	// "github.com/hosokawa-y/dynamodb-shop/backend/internal/service"
+	"github.com/hosokawa-y/dynamodb-shop/backend/internal/service"
 	"github.com/joho/godotenv"
 )
 
@@ -41,32 +40,21 @@ func main() {
 	}
 	jwtAuth := middleware.NewJWTAuth(cfg.JWTSecret, jwtExpiry)
 
-	// TODO: Repository の初期化（ユーザーが実装）
-	// userRepo := repository.NewUserRepository(dbClient)
-	// productRepo := repository.NewProductRepository(dbClient)
+	// Repository の初期化
+	userRepo := repository.NewUserRepository(dbClient)
+	productRepo := repository.NewProductRepository(dbClient)
 
-	// TODO: Service の初期化（ユーザーが実装）
-	// userService := service.NewUserService(userRepo)
-	// productService := service.NewProductService(productRepo)
+	// Service の初期化
+	userService := service.NewUserService(userRepo)
+	productService := service.NewProductService(productRepo)
 
 	// Handler の初期化
-	// TODO: 実際の Service を渡すように変更
-	// authHandler := handler.NewAuthHandler(userService, jwtAuth)
-	// productHandler := handler.NewProductHandler(productService)
-	_ = dbClient    // Repository実装後に削除
-	_ = jwtAuth     // Handler初期化後に削除
+	authHandler := handler.NewAuthHandler(userService, jwtAuth)
+	productHandler := handler.NewProductHandler(productService)
 
-	// TODO: Handler初期化後にコメントを解除
-	// router := handler.NewRouter(jwtAuth, authHandler, productHandler)
-	// httpHandler := router.Setup()
-
-	// 仮のルーター（Service実装前の動作確認用）
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"status":"ok","message":"Waiting for Service implementation"}`))
-	})
-	httpHandler := middleware.Logging(middleware.CORS(mux))
+	// Router の設定
+	router := handler.NewRouter(jwtAuth, authHandler, productHandler)
+	httpHandler := router.Setup()
 
 	// サーバーの設定
 	server := &http.Server{
