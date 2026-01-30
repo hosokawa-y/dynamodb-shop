@@ -28,7 +28,7 @@ func main() {
 
 	// DynamoDBクライアントの初期化
 	ctx := context.Background()
-	dbClient, err := repository.NewDynamoDBClient(ctx, cfg.DynamoDBTable, cfg.DynamoDBEndpoint, cfg.AWSRegion)
+	dbClient, err := repository.NewDynamoDBClient(ctx, cfg.DynamoDBTable)
 	if err != nil {
 		log.Fatalf("Failed to initialize DynamoDB client: %v", err)
 	}

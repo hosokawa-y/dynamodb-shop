@@ -14,7 +14,7 @@ import (
 type UserService interface {
 	Register(ctx context.Context, req *domain.RegisterRequest) (*domain.User, error)
 	Login(ctx context.Context, req *domain.LoginRequest) (*domain.User, error)
-	GetByID(ctx context.Context, id string) (*domain.User, error)
+	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 }
 
 type AuthHandler struct {
@@ -102,7 +102,7 @@ func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.GetByID(r.Context(), userID)
+	user, err := h.userService.GetUserByID(r.Context(), userID)
 	if err != nil {
 		response.Error(w, http.StatusNotFound, "User not found")
 		return
