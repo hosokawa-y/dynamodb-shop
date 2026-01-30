@@ -11,7 +11,8 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(./infrastructure/scripts/create-table.sh:*)"
     ]
   }
 }
