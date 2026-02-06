@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 
 const props = defineProps<{
   id: string
@@ -11,6 +12,10 @@ const props = defineProps<{
 const router = useRouter()
 const productStore = useProductStore()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
+
+const addingToCart = ref(false)
+const addedToCart = ref(false)
 
 onMounted(() => {
   productStore.fetchProductById(props.id)
@@ -33,6 +38,32 @@ function formatDate(dateString: string): string {
 
 function goBack() {
   router.push('/products')
+}
+
+async function addToCart() {
+  if (!productStore.currentProduct || addingToCart.value) return
+
+  addingToCart.value = true
+  addedToCart.value = false
+
+  try {
+    await cartStore.addItem({
+      productId: productStore.currentProduct.id,
+      quantity: 1,
+    })
+    addedToCart.value = true
+    setTimeout(() => {
+      addedToCart.value = false
+    }, 2000)
+  } catch {
+    // エラーはストアで処理済み
+  } finally {
+    addingToCart.value = false
+  }
+}
+
+function goToCart() {
+  router.push('/cart')
 }
 </script>
 
@@ -69,7 +100,16 @@ function goBack() {
         </div>
 
         <div v-if="authStore.isAuthenticated && productStore.currentProduct.stock > 0" class="actions">
-          <button class="btn-primary">Add to Cart</button>
+          <button
+            class="btn-primary"
+            :disabled="addingToCart"
+            @click="addToCart"
+          >
+            {{ addingToCart ? 'Adding...' : 'Add to Cart' }}
+          </button>
+          <button v-if="addedToCart" class="btn-secondary" @click="goToCart">View Cart</button>
+          <p v-if="addedToCart" class="success-message">Added to cart!</p>
+          <p v-if="cartStore.error" class="error-message">{{ cartStore.error }}</p>
         </div>
 
         <div v-else-if="!authStore.isAuthenticated" class="login-prompt">
@@ -215,8 +255,41 @@ function goBack() {
   transition: background 0.2s;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: #3a7bc8;
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  background: white;
+  color: #4a90d9;
+  border: 1px solid #4a90d9;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f0f7ff;
+}
+
+.success-message {
+  color: #27ae60;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.error-message {
+  color: #c00;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .login-prompt {
