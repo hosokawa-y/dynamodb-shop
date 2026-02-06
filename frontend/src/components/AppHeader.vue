@@ -1,11 +1,41 @@
 <script setup lang="ts">
+import { onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 const router = useRouter()
 
+// ログイン時にカートを取得
+watch(
+  () => authStore.isAuthenticated,
+  async (isAuthenticated) => {
+    if (isAuthenticated) {
+      try {
+        await cartStore.fetchCart()
+      } catch {
+        // エラーは無視（ログイン直後など）
+      }
+    } else {
+      cartStore.clearCart()
+    }
+  },
+)
+
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    try {
+      await cartStore.fetchCart()
+    } catch {
+      // エラーは無視
+    }
+  }
+})
+
 function handleLogout() {
+  cartStore.clearCart()
   authStore.logout()
   router.push('/')
 }
@@ -20,6 +50,10 @@ function handleLogout() {
         <RouterLink to="/products">Products</RouterLink>
 
         <template v-if="authStore.isAuthenticated">
+          <RouterLink to="/cart" class="cart-link">
+            Cart
+            <span v-if="cartStore.itemCount > 0" class="cart-badge">{{ cartStore.itemCount }}</span>
+          </RouterLink>
           <RouterLink to="/profile">{{ authStore.user?.name || 'Profile' }}</RouterLink>
           <button class="logout-btn" @click="handleLogout">Logout</button>
         </template>
@@ -111,5 +145,26 @@ function handleLogout() {
 .logout-btn:hover {
   border-color: #c00;
   color: #c00;
+}
+
+.cart-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cart-badge {
+  background: #e53935;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
 </style>

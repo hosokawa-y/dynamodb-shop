@@ -55,6 +55,34 @@ export interface UpdateProductRequest {
   version: number
 }
 
+// Cart types
+export interface CartItem {
+  userId: string
+  productId: string
+  productName: string
+  price: number
+  quantity: number
+  version: number
+  addedAt: string
+  updatedAt: string
+}
+
+export interface Cart {
+  items: CartItem[]
+  totalPrice: number
+  itemCount: number
+}
+
+export interface AddToCartRequest {
+  productId: string
+  quantity: number
+}
+
+export interface UpdateCartRequest {
+  quantity: number
+  version: number
+}
+
 // API response types
 export interface ErrorResponse {
   error: string
