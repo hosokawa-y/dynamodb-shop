@@ -43,17 +43,20 @@ func main() {
 	// Repository の初期化
 	userRepo := repository.NewUserRepository(dbClient)
 	productRepo := repository.NewProductRepository(dbClient)
+	cartRepo := repository.NewCartRepository(dbClient)
 
 	// Service の初期化
 	userService := service.NewUserService(userRepo)
 	productService := service.NewProductService(productRepo)
+	cartService := service.NewCartService(cartRepo, productRepo)
 
 	// Handler の初期化
 	authHandler := handler.NewAuthHandler(userService, jwtAuth)
 	productHandler := handler.NewProductHandler(productService)
+	cartHandler := handler.NewCartHandler(cartService)
 
 	// Router の設定
-	router := handler.NewRouter(jwtAuth, authHandler, productHandler)
+	router := handler.NewRouter(jwtAuth, authHandler, productHandler, cartHandler)
 	httpHandler := router.Setup()
 
 	// サーバーの設定
