@@ -75,15 +75,8 @@ export const useCartStore = defineStore('cart', () => {
 
     try {
       await cartApi.removeItem(productId)
-      // ローカル状態を更新
-      if (cart.value) {
-        cart.value.items = cart.value.items.filter((item) => item.productId !== productId)
-        cart.value.itemCount = cart.value.items.length
-        cart.value.totalPrice = cart.value.items.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0,
-        )
-      }
+      // カート全体を再取得して最新状態に更新
+      await fetchCart()
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string } } }
       error.value = err.response?.data?.error || 'Failed to remove item'
