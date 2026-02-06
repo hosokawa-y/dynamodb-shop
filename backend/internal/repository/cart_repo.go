@@ -171,6 +171,9 @@ func (r *CartRepository) UpdateQuantity(ctx context.Context, userID, productID s
 			"SK": &types.AttributeValueMemberS{Value: "CART#" + productID},
 		},
 		UpdateExpression: aws.String("SET quantity = :qty, version = :newVer, updatedAt = :now"),
+		// ConditionExpression: 楽観的ロックの条件
+		// DBに保存されているversionと、リクエストで送られたversionが一致する場合のみ更新
+		ConditionExpression: aws.String("version = :currentVer"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":qty":        &types.AttributeValueMemberN{Value: strconv.Itoa(quantity)},
 			":currentVer": &types.AttributeValueMemberN{Value: strconv.Itoa(currentVersion)},
