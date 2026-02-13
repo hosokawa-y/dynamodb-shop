@@ -68,6 +68,10 @@ async function removeItem(productId: string) {
 function goToProducts() {
   router.push('/products')
 }
+
+function goToCheckout() {
+  router.push('/checkout')
+}
 </script>
 
 <template>
@@ -134,8 +138,7 @@ function goToProducts() {
           <span>Total</span>
           <span>{{ formatPrice(cartStore.totalPrice) }}</span>
         </div>
-        <button class="btn-checkout" disabled>Proceed to Checkout</button>
-        <p class="checkout-note">Checkout will be available in Phase 3</p>
+        <button class="btn-checkout" @click="goToCheckout">Proceed to Checkout</button>
       </div>
     </div>
   </div>
