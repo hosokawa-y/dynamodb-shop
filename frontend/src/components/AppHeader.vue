@@ -54,6 +54,7 @@ function handleLogout() {
             Cart
             <span v-if="cartStore.itemCount > 0" class="cart-badge">{{ cartStore.itemCount }}</span>
           </RouterLink>
+          <RouterLink to="/orders">Orders</RouterLink>
           <RouterLink to="/profile">{{ authStore.user?.name || 'Profile' }}</RouterLink>
           <button class="logout-btn" @click="handleLogout">Logout</button>
         </template>

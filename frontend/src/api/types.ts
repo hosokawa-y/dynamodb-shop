@@ -83,6 +83,27 @@ export interface UpdateCartRequest {
   version: number
 }
 
+// Order types
+export interface OrderItem {
+  orderId: string
+  productId: string
+  productName: string
+  price: number
+  quantity: number
+  subtotal: number
+}
+
+export interface Order {
+  id: string
+  userId: string
+  status: string
+  totalAmount: number
+  itemCount: number
+  items?: OrderItem[]
+  createdAt: string
+  updatedAt: string
+}
+
 // API response types
 export interface ErrorResponse {
   error: string

@@ -13,15 +13,17 @@ type Router struct {
 	authHandler    *AuthHandler
 	productHandler *ProductHandler
 	cartHandler    *CartHandler
+	orderHandler   *OrderHandler
 }
 
-func NewRouter(jwtAuth *middleware.JWTAuth, authHandler *AuthHandler, productHandler *ProductHandler, cartHandler *CartHandler) *Router {
+func NewRouter(jwtAuth *middleware.JWTAuth, authHandler *AuthHandler, productHandler *ProductHandler, cartHandler *CartHandler, orderHandler *OrderHandler) *Router {
 	return &Router{
 		mux:            http.NewServeMux(),
 		jwtAuth:        jwtAuth,
 		authHandler:    authHandler,
 		productHandler: productHandler,
 		cartHandler:    cartHandler,
+		orderHandler:   orderHandler,
 	}
 }
 
@@ -52,6 +54,11 @@ func (r *Router) Setup() http.Handler {
 	r.mux.Handle("POST /api/v1/cart/items", r.jwtAuth.Middleware(http.HandlerFunc(r.cartHandler.AddItem)))
 	r.mux.Handle("PUT /api/v1/cart/items/{productId}", r.jwtAuth.Middleware(http.HandlerFunc(r.cartHandler.UpdateQuantity)))
 	r.mux.Handle("DELETE /api/v1/cart/items/{productId}", r.jwtAuth.Middleware(http.HandlerFunc(r.cartHandler.RemoveItem)))
+
+	// Order routes (protected)
+	r.mux.Handle("POST /api/v1/orders", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.CreateOrder)))
+	r.mux.Handle("GET /api/v1/orders", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.GetOrders)))
+	r.mux.Handle("GET /api/v1/orders/{id}", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.GetOrderByID)))
 
 	// Apply middleware
 	handler := middleware.Logging(middleware.CORS(r.mux))
