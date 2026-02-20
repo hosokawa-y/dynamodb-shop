@@ -10,6 +10,7 @@ import (
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
+var ErrEmailAlreadyExists = errors.New("email already exists")
 
 type UserService struct {
 	repo *repository.UserRepository
@@ -22,6 +23,21 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 }
 
 func (s *UserService) Register(ctx context.Context, req *domain.RegisterRequest) (*domain.User, error) {
+	// ========================================
+	// メールアドレスの重複チェック（追加）
+	// ========================================
+	// GSI1を使ってメールアドレスで検索
+	// ユーザーが見つかった場合 → 重複エラー
+	// ErrUserNotFound の場合 → 重複なし、登録OK
+	_, err := s.repo.GetByEmail(ctx, req.Email)
+	if err == nil {
+		return nil, ErrEmailAlreadyExists
+	}
+	if !errors.Is(err, repository.ErrUserNotFound) {
+		// ユーザーが見つからない以外のエラーはそのまま返す
+		return nil, err
+	}
+
 	// パスワードをハッシュ化
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
