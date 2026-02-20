@@ -21,7 +21,8 @@
       "Bash(git config:*)",
       "Bash(aws dynamodb scan:*)",
       "Bash(aws dynamodb query:*)",
-      "Bash(aws dynamodb delete-item:*)"
+      "Bash(aws dynamodb delete-item:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
