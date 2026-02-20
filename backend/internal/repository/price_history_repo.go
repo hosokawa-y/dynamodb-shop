@@ -80,12 +80,14 @@ func (r *PriceHistoryRepository) Create(ctx context.Context, history *domain.Pri
 // 【使用API】Query + ScanIndexForward=false
 //
 // 【ScanIndexForward の役割】
-//   true (デフォルト): ソートキーの昇順（古い→新しい）
-//   false: ソートキーの降順（新しい→古い）
+//
+//	true (デフォルト): ソートキーの昇順（古い→新しい）
+//	false: ソートキーの降順（新しい→古い）
 //
 // 【Limit の役割】
-//   取得する最大件数を指定
-//   LastEvaluatedKey と組み合わせてページネーションに使用
+//
+//	取得する最大件数を指定
+//	LastEvaluatedKey と組み合わせてページネーションに使用
 func (r *PriceHistoryRepository) GetByProductID(ctx context.Context, productID string, limit int32) ([]*domain.PriceHistory, error) {
 	input := &dynamodb.QueryInput{
 		TableName:              r.db.Table(),
