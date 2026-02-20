@@ -104,6 +104,36 @@ export interface Order {
   updatedAt: string
 }
 
+// Price History types
+export interface PriceHistory {
+  productId: string
+  price: number
+  changedBy: string
+  timestamp: string
+}
+
+// Inventory Log types
+export interface InventoryLog {
+  productId: string
+  changeType: string // IN, OUT, ADJUST
+  quantity: number
+  previousStock: number
+  newStock: number
+  reason: string
+  orderId?: string
+  timestamp: string
+}
+
+export interface UpdatePriceRequest {
+  price: number
+}
+
+export interface AdjustStockRequest {
+  changeType: string // IN, OUT, ADJUST
+  quantity: number
+  reason: string
+}
+
 // API response types
 export interface ErrorResponse {
   error: string

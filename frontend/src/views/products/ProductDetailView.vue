@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import PriceHistoryChart from '@/components/product/PriceHistoryChart.vue'
 
 const props = defineProps<{
   id: string
@@ -120,6 +121,8 @@ function goToCart() {
           <p>Created: {{ formatDate(productStore.currentProduct.createdAt) }}</p>
           <p>Updated: {{ formatDate(productStore.currentProduct.updatedAt) }}</p>
         </div>
+
+        <PriceHistoryChart :product-id="productStore.currentProduct.id" />
       </div>
     </div>
   </div>
@@ -159,7 +162,7 @@ function goToCart() {
 
 .product-detail {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 400px 1fr;
   gap: 2rem;
   background: white;
   border-radius: 8px;
@@ -167,13 +170,15 @@ function goToCart() {
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .product-detail {
     grid-template-columns: 1fr;
   }
 }
 
 .product-image {
+  width: 100%;
+  max-height: 400px;
   aspect-ratio: 1;
   background: #f5f5f5;
   display: flex;

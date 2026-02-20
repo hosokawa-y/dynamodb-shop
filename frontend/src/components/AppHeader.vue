@@ -55,6 +55,7 @@ function handleLogout() {
             <span v-if="cartStore.itemCount > 0" class="cart-badge">{{ cartStore.itemCount }}</span>
           </RouterLink>
           <RouterLink to="/orders">Orders</RouterLink>
+          <RouterLink to="/admin/inventory" class="admin-link">Admin</RouterLink>
           <RouterLink to="/profile">{{ authStore.user?.name || 'Profile' }}</RouterLink>
           <button class="logout-btn" @click="handleLogout">Logout</button>
         </template>
@@ -128,6 +129,15 @@ function handleLogout() {
 
 .register-link:hover {
   background: #3a7bc8;
+}
+
+.admin-link {
+  color: #27ae60 !important;
+  font-weight: 500;
+}
+
+.admin-link:hover {
+  color: #1e8449 !important;
 }
 
 .logout-btn {

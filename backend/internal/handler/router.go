@@ -8,22 +8,34 @@ import (
 )
 
 type Router struct {
-	mux            *http.ServeMux
-	jwtAuth        *middleware.JWTAuth
-	authHandler    *AuthHandler
-	productHandler *ProductHandler
-	cartHandler    *CartHandler
-	orderHandler   *OrderHandler
+	mux                 *http.ServeMux
+	jwtAuth             *middleware.JWTAuth
+	authHandler         *AuthHandler
+	productHandler      *ProductHandler
+	cartHandler         *CartHandler
+	orderHandler        *OrderHandler
+	priceHistoryHandler *PriceHistoryHandler
+	inventoryHandler    *InventoryHandler
 }
 
-func NewRouter(jwtAuth *middleware.JWTAuth, authHandler *AuthHandler, productHandler *ProductHandler, cartHandler *CartHandler, orderHandler *OrderHandler) *Router {
+func NewRouter(
+	jwtAuth *middleware.JWTAuth,
+	authHandler *AuthHandler,
+	productHandler *ProductHandler,
+	cartHandler *CartHandler,
+	orderHandler *OrderHandler,
+	priceHistoryHandler *PriceHistoryHandler,
+	inventoryHandler *InventoryHandler,
+) *Router {
 	return &Router{
-		mux:            http.NewServeMux(),
-		jwtAuth:        jwtAuth,
-		authHandler:    authHandler,
-		productHandler: productHandler,
-		cartHandler:    cartHandler,
-		orderHandler:   orderHandler,
+		mux:                 http.NewServeMux(),
+		jwtAuth:             jwtAuth,
+		authHandler:         authHandler,
+		productHandler:      productHandler,
+		cartHandler:         cartHandler,
+		orderHandler:        orderHandler,
+		priceHistoryHandler: priceHistoryHandler,
+		inventoryHandler:    inventoryHandler,
 	}
 }
 
@@ -59,6 +71,15 @@ func (r *Router) Setup() http.Handler {
 	r.mux.Handle("POST /api/v1/orders", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.CreateOrder)))
 	r.mux.Handle("GET /api/v1/orders", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.GetOrders)))
 	r.mux.Handle("GET /api/v1/orders/{id}", r.jwtAuth.Middleware(http.HandlerFunc(r.orderHandler.GetOrderByID)))
+
+	// Price history routes (public for viewing, protected for updating)
+	r.mux.HandleFunc("GET /api/v1/products/{id}/price-history", r.priceHistoryHandler.GetHistory)
+	r.mux.Handle("PUT /api/v1/products/{id}/price", r.jwtAuth.Middleware(http.HandlerFunc(r.priceHistoryHandler.UpdatePrice)))
+
+	// Inventory routes (protected - admin only in real app)
+	r.mux.Handle("PUT /api/v1/products/{id}/stock", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.AdjustStock)))
+	r.mux.Handle("GET /api/v1/products/{id}/inventory-logs", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.GetLogs)))
+	r.mux.Handle("GET /api/v1/admin/inventory-logs", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.GetAllLogs)))
 
 	// Apply middleware
 	handler := middleware.Logging(middleware.CORS(r.mux))
