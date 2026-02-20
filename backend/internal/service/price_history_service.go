@@ -23,7 +23,7 @@ func NewPriceHistoryService(priceHistoryRepo *repository.PriceHistoryRepository,
 // UpdatePriceは商品価格を更新し、価格履歴を記録する
 func (s *PriceHistoryService) UpdatePrice(ctx context.Context, productID string, newPrice int, changedBy string) error {
 	// 商品の現在の価格を取得
-	product, err := s.productRepo.GetProductByID(ctx, productID)
+	product, err := s.productRepo.GetByID(ctx, productID)
 	if err != nil {
 		return err
 	}
