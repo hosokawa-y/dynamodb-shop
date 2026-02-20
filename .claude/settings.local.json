@@ -19,7 +19,9 @@
       "Bash(npm run dev:*)",
       "Bash(pkill:*)",
       "Bash(git config:*)",
-      "Bash(aws dynamodb scan:*)"
+      "Bash(aws dynamodb scan:*)",
+      "Bash(aws dynamodb query:*)",
+      "Bash(aws dynamodb delete-item:*)"
     ]
   }
 }
