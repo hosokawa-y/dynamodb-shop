@@ -23,13 +23,13 @@ func NewOrderService(orderRepo *repository.OrderRepository, cartRepo *repository
 
 // CreateOrder はカートから注文を作成する
 // 【処理フロー】
-//   1. カートを取得
-//   2. カートアイテムを注文明細に変換
-//   3. トランザクションで注文確定
-//      - 注文ヘッダー作成
-//      - 注文明細作成
-//      - 在庫減算（条件付き）
-//      - カートクリア
+//  1. カートを取得
+//  2. カートアイテムを注文明細に変換
+//  3. トランザクションで注文確定
+//     - 注文ヘッダー作成
+//     - 注文明細作成
+//     - 在庫減算（条件付き）
+//     - カートクリア
 func (s *OrderService) CreateOrder(ctx context.Context, userID string) (*domain.Order, error) {
 	// 1. カートを取得
 	cartItems, err := s.cartRepo.GetByUserID(ctx, userID)
