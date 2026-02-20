@@ -157,10 +157,10 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *domain.Order, 
 					"PK": &types.AttributeValueMemberS{Value: "PRODUCT#" + item.ProductID},
 					"SK": &types.AttributeValueMemberS{Value: "METADATA"},
 				},
-				UpdateExpression: aws.String("SET Stock = Stock - :qty, UpdatedAt = :now"),
+				UpdateExpression: aws.String("SET stock = stock - :qty, updatedAt = :now"),
 				// 【ConditionExpression】在庫が購入数量以上あることを確認
 				// この条件を満たさない場合、トランザクション全体がロールバック
-				ConditionExpression: aws.String("Stock >= :qty"),
+				ConditionExpression: aws.String("stock >= :qty"),
 				ExpressionAttributeValues: map[string]types.AttributeValue{
 					":qty": &types.AttributeValueMemberN{Value: strconv.Itoa(item.Quantity)},
 					":now": &types.AttributeValueMemberS{Value: now.Format(time.RFC3339)},
