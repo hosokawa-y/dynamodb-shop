@@ -134,6 +134,23 @@ export interface AdjustStockRequest {
   reason: string
 }
 
+// Activity types
+export type ActionType = 'VIEW' | 'CLICK' | 'ADD_CART' | 'PURCHASE'
+
+export interface UserActivity {
+  userId: string
+  actionType: ActionType
+  productId: string
+  metadata?: Record<string, string>
+  timestamp: string
+}
+
+export interface LogActivityRequest {
+  actionType: ActionType
+  productId: string
+  metadata?: Record<string, string>
+}
+
 // API response types
 export interface ErrorResponse {
   error: string

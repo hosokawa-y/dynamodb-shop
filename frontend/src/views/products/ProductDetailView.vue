@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import { activityApi } from '@/api/activity'
 import PriceHistoryChart from '@/components/product/PriceHistoryChart.vue'
 
 const props = defineProps<{
@@ -18,8 +19,20 @@ const cartStore = useCartStore()
 const addingToCart = ref(false)
 const addedToCart = ref(false)
 
-onMounted(() => {
-  productStore.fetchProductById(props.id)
+// 行動ログを送信（エラーは無視）
+async function logActivity(actionType: 'VIEW' | 'CLICK' | 'ADD_CART' | 'PURCHASE', productId: string) {
+  if (!authStore.isAuthenticated) return
+  try {
+    await activityApi.log({ actionType, productId })
+  } catch {
+    // 行動ログの失敗はユーザー体験に影響しないので無視
+  }
+}
+
+onMounted(async () => {
+  await productStore.fetchProductById(props.id)
+  // 商品閲覧ログを送信
+  logActivity('VIEW', props.id)
 })
 
 onUnmounted(() => {
@@ -53,6 +66,8 @@ async function addToCart() {
       quantity: 1,
     })
     addedToCart.value = true
+    // カート追加ログを送信
+    logActivity('ADD_CART', productStore.currentProduct.id)
     setTimeout(() => {
       addedToCart.value = false
     }, 2000)

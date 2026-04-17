@@ -74,6 +74,12 @@ const router = createRouter({
       component: () => import('@/views/admin/InventoryManagement.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/admin/activity',
+      name: 'admin-activity',
+      component: () => import('@/views/admin/UserActivity.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

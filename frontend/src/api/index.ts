@@ -1,4 +1,5 @@
 export { authApi } from './auth'
 export { productsApi } from './products'
 export { cartApi } from './cart'
+export { activityApi } from './activity'
 export * from './types'
