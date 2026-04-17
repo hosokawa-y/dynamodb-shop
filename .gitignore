@@ -19,6 +19,7 @@ secrets.yml
 aws-credentials
 .aws/credentials
 *.secret
+secret.txt
 
 # Backend
 backend/.env
