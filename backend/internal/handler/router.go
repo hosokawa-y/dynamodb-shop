@@ -16,6 +16,7 @@ type Router struct {
 	orderHandler        *OrderHandler
 	priceHistoryHandler *PriceHistoryHandler
 	inventoryHandler    *InventoryHandler
+	activityHandler     *ActivityHandler
 }
 
 func NewRouter(
@@ -26,6 +27,7 @@ func NewRouter(
 	orderHandler *OrderHandler,
 	priceHistoryHandler *PriceHistoryHandler,
 	inventoryHandler *InventoryHandler,
+	activityHandler *ActivityHandler,
 ) *Router {
 	return &Router{
 		mux:                 http.NewServeMux(),
@@ -36,6 +38,7 @@ func NewRouter(
 		orderHandler:        orderHandler,
 		priceHistoryHandler: priceHistoryHandler,
 		inventoryHandler:    inventoryHandler,
+		activityHandler:     activityHandler,
 	}
 }
 
@@ -80,6 +83,12 @@ func (r *Router) Setup() http.Handler {
 	r.mux.Handle("PUT /api/v1/products/{id}/stock", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.AdjustStock)))
 	r.mux.Handle("GET /api/v1/products/{id}/inventory-logs", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.GetLogs)))
 	r.mux.Handle("GET /api/v1/admin/inventory-logs", r.jwtAuth.Middleware(http.HandlerFunc(r.inventoryHandler.GetAllLogs)))
+
+	// Activity routes (protected)
+	r.mux.Handle("POST /api/v1/activity", r.jwtAuth.Middleware(http.HandlerFunc(r.activityHandler.LogActivity)))
+	r.mux.Handle("POST /api/v1/activity/batch", r.jwtAuth.Middleware(http.HandlerFunc(r.activityHandler.BatchLogActivities)))
+	r.mux.Handle("GET /api/v1/activity", r.jwtAuth.Middleware(http.HandlerFunc(r.activityHandler.GetMyActivities)))
+	r.mux.Handle("GET /api/v1/admin/users/{userId}/activities", r.jwtAuth.Middleware(http.HandlerFunc(r.activityHandler.GetUserActivities)))
 
 	// Apply middleware
 	handler := middleware.Logging(middleware.CORS(r.mux))

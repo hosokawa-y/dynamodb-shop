@@ -47,6 +47,7 @@ func main() {
 	orderRepo := repository.NewOrderRepository(dbClient)
 	priceHistoryRepo := repository.NewPriceHistoryRepository(dbClient)
 	inventoryRepo := repository.NewInventoryRepository(dbClient)
+	activityRepo := repository.NewActivityRepository(dbClient)
 
 	// Service の初期化
 	userService := service.NewUserService(userRepo)
@@ -55,6 +56,7 @@ func main() {
 	orderService := service.NewOrderService(orderRepo, cartRepo, productRepo)
 	priceHistoryService := service.NewPriceHistoryService(priceHistoryRepo, productRepo)
 	inventoryService := service.NewInventoryService(inventoryRepo, productRepo)
+	activityService := service.NewActivityService(activityRepo)
 
 	// Handler の初期化
 	authHandler := handler.NewAuthHandler(userService, jwtAuth)
@@ -63,9 +65,10 @@ func main() {
 	orderHandler := handler.NewOrderHandler(orderService)
 	priceHistoryHandler := handler.NewPriceHistoryHandler(priceHistoryService)
 	inventoryHandler := handler.NewInventoryHandler(inventoryService)
+	activityHandler := handler.NewActivityHandler(activityService)
 
 	// Router の設定
-	router := handler.NewRouter(jwtAuth, authHandler, productHandler, cartHandler, orderHandler, priceHistoryHandler, inventoryHandler)
+	router := handler.NewRouter(jwtAuth, authHandler, productHandler, cartHandler, orderHandler, priceHistoryHandler, inventoryHandler, activityHandler)
 	httpHandler := router.Setup()
 
 	// サーバーの設定
