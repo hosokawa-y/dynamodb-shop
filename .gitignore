@@ -38,6 +38,9 @@ lambda/*/*.zip
 # IDE
 .idea/
 .vscode/
+
+# Claude Code
+.claude/settings.local.json
 *.swp
 *.swo
 .DS_Store
