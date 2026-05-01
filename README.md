@@ -37,16 +37,32 @@ dynamodb-shop/
 ./infrastructure/scripts/create-table.sh
 ```
 
-### 2. Backend 起動
+### 2. AWS SSO ログイン
+
+`.env` に `AWS_PROFILE` を設定して SSO 経由で AWS にアクセスする場合、開発開始時に SSO ログインが必要です。
+
+```bash
+# プロファイル名は ~/.aws/config または backend/.env の AWS_PROFILE を参照
+aws sso login --profile <your-profile-name>
+```
+
+#### SSO トークンの有効期限
+
+- SSO トークンは一定時間で期限切れになります（通常 8〜12 時間）
+- 期限切れ後は API リクエスト時に DynamoDB 認証エラーが発生します
+- エラー例: `failed to refresh cached credentials, refresh cached SSO token failed, ... InvalidGrantException`
+- **対処**: 上記コマンドで再ログイン後、**バックエンドプロセスを再起動**してください
+
+### 3. Backend 起動
 
 ```bash
 cd backend
 cp .env.example .env
-# .env を編集してAWS認証情報を設定
+# .env を編集してAWS認証情報を設定（AWS_PROFILE または AWS_ACCESS_KEY_ID/SECRET_ACCESS_KEY）
 go run cmd/api/main.go
 ```
 
-### 3. Frontend 起動
+### 4. Frontend 起動
 
 ```bash
 cd frontend
